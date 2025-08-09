@@ -1,3 +1,4 @@
+
 * {
     margin: 0;
     padding: 0;
@@ -70,5 +71,40 @@ button {
 }
 
 button:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#listaClientes {
+    margin: 5px;
+    padding: 5px;
+}
+
+#listaClientes li {
+    padding: 2px 20px 2px 35px;
+    margin-bottom: 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    justify-content: space-between;
+    background-color: rgba(214, 181, 136, 0.3);
+    border: none;
+}
+
+#listaClientes button {
+    height: 30px;
+    width: 30px;
+    padding: 5px 10px;
+    margin: 10px 0px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    background-color: rgb(255, 0, 0);
+    border: none;
+}
+
+#listaClientes button:hover {
     background-color: rgba(0, 0, 0, 0.5);
 }

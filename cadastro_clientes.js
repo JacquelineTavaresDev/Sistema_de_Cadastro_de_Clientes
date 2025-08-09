@@ -1,43 +1,65 @@
 
+import { Cliente, CadastroClientes } from "./classes.js";
+import { listarNomes, encontrarClientesPorEmail, contarClientes } from "./utils.js";
 
-fetch("https://crudcrud.com/api/5d84bfc2dd6d469db3d0aeedd586b8c2/cadastros")
+const apiUrl = "https://crudcrud.com/api/70a1df6d0c7d46b98f67d3379a53fb0a/cadastros";
+const cadastro = new CadastroClientes(apiUrl);
 
-    .then(resposta => resposta.json())
-    .then((clientes) => {
-        const lista = document.getElementById("listaClientes");
-        lista.innerHTML = "";
+const listaClientes = document.getElementById("listaClientes");
+const botaoAdd = document.getElementById("add");
+
+async function atualizarLista() {
+    const clientes = await cadastro.carregarClientes();
+    listaClientes.innerHTML = "";
+    
+    clientes.forEach(cliente => {
+        const item = document.createElement("li");
+        item.innerHTML = `<span><strong>${cliente.nome}</strong> - ${cliente.email}</span>`;
         
-        clientes.forEach(cliente => {  
-            const item = document.createElement("li");
-            item.innerHTML = `${cliente.nome} - ${cliente.email} <button onclick="excluirCliente('${cliente._id}')">Excluir</button>`;
-            lista.appendChild(item);
+        const botaoExcluir = document.createElement("button");
+        botaoExcluir.textContent = "✖";
+        botaoExcluir.addEventListener("click", async () => {
+            const confirma = confirm(`Deseja realmente excluir o cliente ${cliente.nome}?`);
+            if (confirma) {
+                await cadastro.excluirCliente(cliente._id);
+                atualizarLista();
+            }
         });
-});
 
-document.getElementById("add").addEventListener("click", () => {
-    const nome = document.getElementById("nome").value.trim();
-    const email = document.getElementById("email").value.trim();  
+        item.appendChild(botaoExcluir);
+        listaClientes.appendChild(item);
+    });
 
-    if(!nome || !email){
+    console.log("Lista de nomes:", listarNomes(clientes));
+    console.log("Total de clientes:", contarClientes(clientes));
+}
+
+botaoAdd.addEventListener("click", async () => {
+    const nomeInput = document.getElementById("nome");
+    const emailInput = document.getElementById("email");
+
+    const nome = nomeInput.value.trim();
+    const email = emailInput.value.trim();
+
+    if(!nome || !email) {
         alert("Preencha todos os campos.");
         return;
     }
-    
-    fetch("https://crudcrud.com/api/5d84bfc2dd6d469db3d0aeedd586b8c2/cadastros", {
-       method: "POST",
-       headers: {
-            "Content-Type": "application/json"
-       },
-       body: JSON.stringify({nome, email})
-    })
-    .then(() => location.reload())
-    .catch(erro => console.error("Erro ao cadastrar:", erro));
+
+    const clienteExistente = encontrarClientesPorEmail(cadastro.clientes, email);
+    if (clienteExistente) {
+        alert("E-mail já cadastrado!");
+        return;
+    }
+
+    const novoCliente = new Cliente(nome, email);
+    await cadastro.adicionarCliente(novoCliente);
+
+    nomeInput.value = "";
+    emailInput.value = "";
+
+    atualizarLista();
+
 });
 
-function excluirCliente(id) {
-    fetch(`https://crudcrud.com/api/5d84bfc2dd6d469db3d0aeedd586b8c2/cadastros/${id}`, {
-        method: "DELETE"
-    })
-    .then(() => location.reload())
-    .catch(erro => console.error("Erro ao excluir", erro));
-}
+atualizarLista();
